@@ -1,6 +1,6 @@
 # Password Strength Analyzer & Generator
 
-A command-line tool that scores password strength using entropy math ,not naive rule counting and explains exactly why a password is weak or strong. Can also generate cryptographically secure random passwords.
+A command line tool that scores password strength using entropy math, not naive rule counting and explains exactly why a password is weak or strong. Can also generate cryptographically secure random passwords.
 
 ## Demo
 
@@ -22,19 +22,19 @@ Strength: Very Strong (131.1 bits of entropy)
 
 ## Why entropy instead of naive rules?
 
-Most password checkers score strength with simple rule counting: "+1 point for a number, +1 for a symbol." This produces misleading results ,a short password like `Xy9!` can look "complex" while a long passphrase like `correcthorsebatterystaple` gets flagged as weak for having no symbols, even though the passphrase would actually take far longer to brute-force.
+Most password checkers score strength with simple rule counting: "+1 point for a number, +1 for a symbol." This produces misleading results. A short password like `Xy9!` can look "complex" while a long passphrase like `correcthorsebatterystaple` gets flagged as weak for having no symbols, even though the passphrase would actually take far longer to brute-force.
 
 This tool instead estimates entropy: `length × log2(character_pool_size)`, which measures how large a search space an attacker must brute force through. Length matters more than most people expect this tool will correctly tell you so.
 
 ## Features
 
-- **Entropy-based scoring** (Very Weak → Very Strong), not arbitrary point counting
-- **Common password detection** — instantly flags passwords from a known commonly used list
-- **Human readable explanations** — every result includes specific reasons, not just a score
-- **Secure password generation** using Python's `secrets` module (cryptographically secure, unlike the standard `random` module)
+- **Entropy based scoring** (Very Weak → Very Strong), not arbitrary point counting
+- **Common password detection** instantly flags passwords from a known commonly used list
+- **Human readable explanations** every result includes specific reasons, not just a score
+- **Secure password generation** uses Python's `secrets` module (cryptographically secure, unlike the standard `random` module)
 - **Guaranteed character variety** in generated passwords always includes at least one lowercase, uppercase, and digit (and symbol, unless disabled)
-- **Hidden input option**  analyze a password without it ever appearing on screen or in shell history
-- **Installable as a real CLI tool** via `pyproject.toml` run `password-analyzer` directly after installing, no need to `cd` into the project folder
+- **Hidden input option** analyzes a password without it ever appearing on screen or in shell history
+- **Installable as a real CLI tool** via `pyproject.toml`. Run `password-analyzer` directly after installing, no need to `cd` into the project folder
 
 ## Tech Stack
 
@@ -49,18 +49,18 @@ This tool instead estimates entropy: `length × log2(character_pool_size)`, whic
 ## Getting Started
 
 ### Prerequisites
-- Python 3.9 or higher (standard library only , no external dependencies)
+- Python 3.9 or higher (standard library only, with no external dependencies)
 
 ### Installation
 
-**Option 1 — run directly:**
+**Option 1: run directly**
 ```bash
 git clone https://github.com/MugdhoAI/password-analyzer
 cd password-analyzer
 python main.py check --password "test123"
 ```
 
-**Option 2 — install as a CLI tool:**
+**Option 2: install as a CLI tool**
 ```bash
 cd password-analyzer
 pip install -e .
@@ -75,7 +75,7 @@ python main.py check --password "mypassword123"
 # Analyze without exposing the password as a CLI argument (prompts securely)
 python main.py check
 
-# Generate a strong 20-character password
+# Generate a strong 20 character password
 python main.py generate --length 20
 
 # Generate without symbols
@@ -102,7 +102,7 @@ python -m unittest discover tests
 
 ## What I Learned
 
-The main insight this project is built around: password strength is fundamentally about search space size (entropy), not surface level "complexity." I also learned the real difference between Python's `random` module and `secrets` module `random` is deterministic enough to be predictable by an attacker who studies its output, while `secrets` draws from the operating system's cryptographic randomness source, which matters for anything security-related. Packaging with `pyproject.toml` also taught me that a config file looking correct isn't the same as it actually working my first attempt at `[project.scripts]` failed silently until I tested the installed command from a separate directory and caught a missing `py-modules` declaration.
+The main insight behind this project is that password strength is fundamentally about search space size (entropy), not surface level "complexity." I also learned the real difference between Python's `random` module and `secrets` module `random` is deterministic enough to be predictable by an attacker who studies its output, while `secrets` draws from the operating system's cryptographic randomness source, which matters for anything security-related. Packaging with `pyproject.toml` also taught me that a config file looking correct isn't the same as it actually working my first attempt at `[project.scripts]` failed silently until I tested the installed command from a separate directory and caught a missing `py-modules` declaration.
 
 ## Future Improvements
 - [ ] Check against a larger, real leaked-password dataset (e.g. Have I Been Pwned's API)
