@@ -34,6 +34,8 @@ def run_check(args: argparse.Namespace) -> None:
     print(f"\nStrength: {result.strength_label}")
     print(f"Estimated entropy: {result.entropy_bits} bits")
     print(f"Character pool size: {result.pool_size}")
+    print(f"Estimated time to crack: {result.crack_time_display} "
+          f"(offline attack, fast hash)")
     print("\nDetails:")
     for reason in result.reasons:
         print(f"  - {reason}")
