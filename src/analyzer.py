@@ -24,6 +24,11 @@ POOL_SYMBOLS = 32  # common punctuation/symbol set on a standard keyboard
 COMMON_PASSWORDS = {
     "password", "123456", "12345678", "qwerty", "abc123", "letmein",
     "monkey", "111111", "iloveyou", "admin", "welcome", "password1",
+    "123456789", "12345", "1234567", "123123", "1234", "qwerty123",
+    "football", "baseball", "sunshine", "master", "killer", "shadow",
+    "superman", "trustno1", "starwars", "charlie", "pokemon", "naruto",
+    "dragon", "princess", "computer", "michelle", "jessica", "pepper",
+    "1234567890", "000000", "654321", "admin123", "login", "passw0rd",
 }
 
 # Assumed guessing rate for an offline attack against a fast hash
