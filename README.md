@@ -10,6 +10,7 @@ $ python main.py check --password "correcthorsebatterystaple"
 Strength: Very Strong
 Estimated entropy: 117.5 bits
 Character pool size: 26
+Estimated time to crack: over a trillion years (offline attack, fast hash)
 
 Details:
   - Good length and character variety across multiple character classes.
@@ -29,6 +30,8 @@ This tool instead estimates entropy: `length × log2(character_pool_size)`, whic
 ## Features
 
 - **Entropy based scoring** (Very Weak → Very Strong), not arbitrary point counting
+- **Estimated crack time** translates entropy into a realistic offline cracking time (average case at 10 billion guesses per second)
+- **Pattern detection** flags repeated characters ("aaa") and simple sequences ("abc", "321") that pure entropy math would miss
 - **Common password detection** instantly flags passwords from a known commonly used list
 - **Human readable explanations** every result includes specific reasons, not just a score
 - **Secure password generation** uses Python's `secrets` module (cryptographically secure, unlike the standard `random` module)
@@ -106,7 +109,7 @@ The main insight behind this project is that password strength is fundamentally 
 
 ## Future Improvements
 - [ ] Check against a larger, real leaked-password dataset (e.g. Have I Been Pwned's API)
-- [ ] Estimate realistic crack time (in seconds/days/years) instead of just raw entropy bits
+- [x] Estimate realistic crack time (in seconds/days/years) instead of just raw entropy bits
 - [ ] Optional GUI or web interface
 
 ## Author
