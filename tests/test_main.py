@@ -7,7 +7,13 @@ Run with:
 
 import unittest
 
-from src.analyzer import analyze_password, _detect_pool_size, _calculate_entropy
+from src.analyzer import (
+    analyze_password,
+    estimate_crack_time_seconds,
+    format_crack_time,
+    _detect_pool_size,
+    _calculate_entropy,
+)
 from src.generator import generate_password
 
 
@@ -97,6 +103,46 @@ class TestGeneratePassword(unittest.TestCase):
         pw1 = generate_password(length=16)
         pw2 = generate_password(length=16)
         self.assertNotEqual(pw1, pw2)
+
+
+class TestCrackTime(unittest.TestCase):
+
+    def test_zero_entropy_cracks_instantly(self):
+        self.assertEqual(estimate_crack_time_seconds(0), 0.0)
+
+    def test_higher_entropy_takes_longer_to_crack(self):
+        weak = estimate_crack_time_seconds(30)
+        strong = estimate_crack_time_seconds(70)
+        self.assertGreater(strong, weak)
+
+    def test_format_subsecond(self):
+        self.assertEqual(format_crack_time(0.4), "less than a second")
+
+    def test_format_seconds_and_minutes(self):
+        self.assertEqual(format_crack_time(45), "45 seconds")
+        self.assertEqual(format_crack_time(600), "10 minutes")
+
+    def test_format_hours_and_days(self):
+        self.assertEqual(format_crack_time(7200), "2 hours")
+        self.assertEqual(format_crack_time(432000), "5 days")
+
+    def test_format_years_and_beyond(self):
+        self.assertEqual(format_crack_time(31_536_000 * 120), "120 years")
+        self.assertIn("thousand years", format_crack_time(31_536_000 * 4500))
+        self.assertEqual(
+            format_crack_time(31_536_000 * 2_000_000_000_000),
+            "over a trillion years",
+        )
+
+    def test_analysis_reports_crack_time(self):
+        result = analyze_password("correcthorsebatterystaple")
+        self.assertGreater(result.crack_time_seconds, 0)
+        self.assertEqual(result.crack_time_display, "over a trillion years")
+
+    def test_common_password_crack_time_is_instant(self):
+        result = analyze_password("password")
+        self.assertEqual(result.crack_time_seconds, 0.0)
+        self.assertTrue(result.crack_time_display.startswith("instantly"))
 
 
 if __name__ == "__main__":
