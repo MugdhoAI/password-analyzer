@@ -137,6 +137,43 @@ def _label_strength(entropy_bits: float, is_common: bool) -> str:
     return "Very Strong"
 
 
+def _find_repeated_run(password: str) -> str | None:
+    """
+    Return the first run of the same character repeated 3 or more
+    times in a row (for example "aaa"), or None. Attackers try these
+    early, and the plain entropy estimate does not account for them.
+    """
+    run_char = ""
+    run_length = 0
+    for char in password:
+        if char == run_char:
+            run_length += 1
+        else:
+            run_char = char
+            run_length = 1
+        if run_length >= 3:
+            return run_char * run_length
+    return None
+
+
+_SEQUENCE_SOURCES = ("abcdefghijklmnopqrstuvwxyz", "0123456789")
+
+
+def _find_sequence(password: str) -> str | None:
+    """
+    Return the first simple sequence of 3 or more characters, such
+    as "abc", "cba", "123" or "321", or None. Case is ignored, so
+    "XyZ" is caught as well.
+    """
+    lowered = password.lower()
+    for start in range(len(lowered) - 2):
+        window = lowered[start:start + 3]
+        for source in _SEQUENCE_SOURCES:
+            if window in source or window[::-1] in source:
+                return window
+    return None
+
+
 def analyze_password(password: str) -> AnalysisResult:
     """
     Analyze a password and return a structured strength assessment.
@@ -167,6 +204,19 @@ def analyze_password(password: str) -> AnalysisResult:
         reasons.append("No digits — reduces the character pool an attacker must search.")
     if not re.search(r"[^a-zA-Z0-9]", password):
         reasons.append("No symbols — adding symbols significantly increases the character pool.")
+
+    repeated = _find_repeated_run(password)
+    if repeated:
+        reasons.append(
+            f"Repeats the character '{repeated[0]}' {len(repeated)} times in a row, "
+            "a pattern guessing tools try early."
+        )
+    sequence = _find_sequence(password)
+    if sequence:
+        reasons.append(
+            f"Contains the simple sequence '{sequence}', "
+            "which guessing tools try early."
+        )
 
     if not reasons:
         reasons.append("Good length and character variety across multiple character classes.")
