@@ -26,6 +26,12 @@ COMMON_PASSWORDS = {
     "monkey", "111111", "iloveyou", "admin", "welcome", "password1",
 }
 
+# Assumed guessing rate for an offline attack against a fast hash
+# (for example MD5 or SHA-1) on modern GPU hardware. Online attacks
+# against a rate limited login form are far slower; this number is
+# deliberately the pessimistic case.
+OFFLINE_GUESSES_PER_SECOND = 10_000_000_000
+
 
 @dataclass
 class AnalysisResult:
@@ -35,6 +41,44 @@ class AnalysisResult:
     strength_label: str
     reasons: list[str] = field(default_factory=list)
     is_common_password: bool = False
+    crack_time_seconds: float = 0.0
+    crack_time_display: str = ""
+
+
+def estimate_crack_time_seconds(entropy_bits: float) -> float:
+    """
+    Estimate the average seconds an offline attacker needs to guess
+    a password with the given entropy. On average an attacker finds
+    the password halfway through the search space, so the expected
+    number of guesses is 2 ** (entropy_bits - 1).
+    """
+    if entropy_bits <= 0:
+        return 0.0
+    return (2 ** (entropy_bits - 1)) / OFFLINE_GUESSES_PER_SECOND
+
+
+def format_crack_time(seconds: float) -> str:
+    """Format a crack time in seconds as a short human phrase."""
+    if seconds < 1:
+        return "less than a second"
+    if seconds < 60:
+        return f"{int(seconds)} seconds"
+    if seconds < 3600:
+        return f"{round(seconds / 60)} minutes"
+    if seconds < 86400:
+        return f"{round(seconds / 3600)} hours"
+    if seconds < 31_536_000:
+        return f"{round(seconds / 86400)} days"
+    years = seconds / 31_536_000
+    if years < 1000:
+        return f"{round(years)} years"
+    if years < 1_000_000:
+        return f"{years / 1000:.1f} thousand years"
+    if years < 1_000_000_000:
+        return f"{years / 1_000_000:.1f} million years"
+    if years < 1_000_000_000_000:
+        return f"{years / 1_000_000_000:.1f} billion years"
+    return "over a trillion years"
 
 
 def _detect_pool_size(password: str) -> int:
@@ -129,10 +173,19 @@ def analyze_password(password: str) -> AnalysisResult:
 
     label = _label_strength(entropy_bits, is_common)
 
+    if is_common:
+        crack_seconds = 0.0
+        crack_display = "instantly, it appears in every cracking dictionary"
+    else:
+        crack_seconds = estimate_crack_time_seconds(entropy_bits)
+        crack_display = format_crack_time(crack_seconds)
+
     return AnalysisResult(
         entropy_bits=round(entropy_bits, 1),
         pool_size=pool_size,
         strength_label=label,
         reasons=reasons,
         is_common_password=is_common,
+        crack_time_seconds=crack_seconds,
+        crack_time_display=crack_display,
     )
