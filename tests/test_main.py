@@ -145,5 +145,33 @@ class TestCrackTime(unittest.TestCase):
         self.assertTrue(result.crack_time_display.startswith("instantly"))
 
 
+class TestPatternDetection(unittest.TestCase):
+
+    def test_repeated_characters_are_flagged(self):
+        result = analyze_password("Mypaaassword1!")
+        self.assertTrue(any("in a row" in r for r in result.reasons))
+
+    def test_two_repeats_are_not_flagged(self):
+        result = analyze_password("Moonlight7!Trail")
+        self.assertFalse(any("in a row" in r for r in result.reasons))
+
+    def test_letter_sequence_is_flagged(self):
+        result = analyze_password("myabcPass9!word")
+        self.assertTrue(any("sequence" in r for r in result.reasons))
+
+    def test_descending_and_digit_sequences_are_flagged(self):
+        self.assertTrue(any(
+            "sequence" in r for r in analyze_password("Zyx9!strongpass").reasons
+        ))
+        self.assertTrue(any(
+            "sequence" in r for r in analyze_password("pass321Word!x").reasons
+        ))
+
+    def test_clean_password_has_no_pattern_reasons(self):
+        result = analyze_password("Tr7!kQ9#mZ2&wP")
+        self.assertFalse(any("sequence" in r for r in result.reasons))
+        self.assertFalse(any("in a row" in r for r in result.reasons))
+
+
 if __name__ == "__main__":
     unittest.main()
