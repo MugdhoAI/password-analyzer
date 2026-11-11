@@ -5,6 +5,7 @@ Run with:
     python -m unittest discover tests
 """
 
+import math
 import unittest
 
 from src.analyzer import (
@@ -143,6 +144,19 @@ class TestCrackTime(unittest.TestCase):
         result = analyze_password("password")
         self.assertEqual(result.crack_time_seconds, 0.0)
         self.assertTrue(result.crack_time_display.startswith("instantly"))
+
+    def test_huge_entropy_returns_infinite_crack_time(self):
+        # Regression test: past roughly 1024 bits of entropy the raw
+        # 2 ** entropy calculation overflows a float and raises
+        # OverflowError instead of returning a number.
+        self.assertEqual(estimate_crack_time_seconds(2000), math.inf)
+        self.assertEqual(format_crack_time(math.inf), "over a trillion years")
+
+    def test_very_long_password_does_not_crash(self):
+        result = analyze_password("Aa1!" * 50)  # 200 characters
+        self.assertEqual(result.strength_label, "Very Strong")
+        self.assertEqual(result.crack_time_seconds, math.inf)
+        self.assertEqual(result.crack_time_display, "over a trillion years")
 
 
 class TestPatternDetection(unittest.TestCase):

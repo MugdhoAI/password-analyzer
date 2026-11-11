@@ -59,6 +59,13 @@ def estimate_crack_time_seconds(entropy_bits: float) -> float:
     """
     if entropy_bits <= 0:
         return 0.0
+    if entropy_bits > 1024:
+        # 2 ** entropy no longer fits in a float beyond this point,
+        # and raising it anyway crashes with OverflowError on very
+        # long passwords. The exact figure is meaningless at that
+        # scale regardless: the display already tops out at "over a
+        # trillion years", which format_crack_time returns for inf.
+        return math.inf
     return (2 ** (entropy_bits - 1)) / OFFLINE_GUESSES_PER_SECOND
 
 
