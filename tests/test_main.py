@@ -71,6 +71,15 @@ class TestAnalyzePassword(unittest.TestCase):
         result = analyze_password("abc")
         self.assertEqual(result.strength_label, "Very Weak")
 
+    def test_empty_password_is_very_weak_with_zero_entropy(self):
+        result = analyze_password("")
+        self.assertEqual(result.strength_label, "Very Weak")
+        self.assertEqual(result.entropy_bits, 0.0)
+        self.assertEqual(result.pool_size, 0)
+        self.assertEqual(result.crack_time_seconds, 0.0)
+        self.assertEqual(result.crack_time_display, "less than a second")
+        self.assertGreater(len(result.reasons), 0)
+
     def test_complex_short_password_beats_naive_expectations_correctly(self):
         # A short password with all character classes still shouldn't
         # be rated as strong as a long one — length dominates entropy.
@@ -102,6 +111,14 @@ class TestGeneratePassword(unittest.TestCase):
     def test_too_short_length_raises_error(self):
         with self.assertRaises(ValueError):
             generate_password(length=4)
+
+    def test_minimum_length_of_eight_is_accepted(self):
+        password = generate_password(length=8)
+        self.assertEqual(len(password), 8)
+
+    def test_length_seven_is_rejected(self):
+        with self.assertRaises(ValueError):
+            generate_password(length=7)
 
     def test_exclude_ambiguous_leaves_out_confusing_characters(self):
         for _ in range(20):
