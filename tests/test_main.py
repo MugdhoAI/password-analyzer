@@ -61,6 +61,13 @@ class TestAnalyzePassword(unittest.TestCase):
         self.assertTrue(result.is_common_password)
         self.assertEqual(result.strength_label, "Very Weak")
 
+    def test_newly_added_common_passwords_are_flagged(self):
+        for common in ("qwertyuiop", "admin1234", "welcome1", "monkey123",
+                       "dragon123", "shadow123", "letmein123"):
+            result = analyze_password(common)
+            self.assertTrue(result.is_common_password, common)
+            self.assertEqual(result.strength_label, "Very Weak")
+
     def test_long_passphrase_scores_well_despite_no_symbols(self):
         # This is the key entropy-over-naive-rules demonstration:
         # a long, all-lowercase passphrase should still score strong.

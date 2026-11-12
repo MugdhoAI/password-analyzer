@@ -32,7 +32,7 @@ This tool instead estimates entropy: `length × log2(character_pool_size)`, whic
 - **Entropy based scoring** (Very Weak → Very Strong), not arbitrary point counting
 - **Estimated crack time** translates entropy into a realistic offline cracking time (average case at 10 billion guesses per second)
 - **Pattern detection** flags repeated characters ("aaa"), simple sequences ("abc", "321"), and keyboard walks ("qwerty", "1qaz") that pure entropy math would miss
-- **Common password detection** instantly flags passwords from a known commonly used list
+- **Common password detection** instantly flags passwords from a list of 54 commonly used passwords
 - **Human readable explanations** every result includes specific reasons, not just a score
 - **Secure password generation** uses Python's `secrets` module (cryptographically secure, unlike the standard `random` module)
 - **Guaranteed character variety** in generated passwords always includes at least one lowercase, uppercase, and digit (and symbol, unless disabled)

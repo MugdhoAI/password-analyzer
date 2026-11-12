@@ -29,6 +29,9 @@ COMMON_PASSWORDS = {
     "superman", "trustno1", "starwars", "charlie", "pokemon", "naruto",
     "dragon", "princess", "computer", "michelle", "jessica", "pepper",
     "1234567890", "000000", "654321", "admin123", "login", "passw0rd",
+    "qwertyuiop", "12345678910", "admin1234", "letmein123", "welcome1",
+    "monkey123", "dragon123", "football1", "sunshine1", "iloveyou1",
+    "princess1", "shadow123",
 }
 
 # Assumed guessing rate for an offline attack against a fast hash
