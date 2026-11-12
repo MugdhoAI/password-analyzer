@@ -69,21 +69,28 @@ def estimate_crack_time_seconds(entropy_bits: float) -> float:
     return (2 ** (entropy_bits - 1)) / OFFLINE_GUESSES_PER_SECOND
 
 
+def _plural(value: int, unit: str) -> str:
+    """Format a count with its unit, singular when the count is 1."""
+    if value == 1:
+        return f"{value} {unit}"
+    return f"{value} {unit}s"
+
+
 def format_crack_time(seconds: float) -> str:
     """Format a crack time in seconds as a short human phrase."""
     if seconds < 1:
         return "less than a second"
     if seconds < 60:
-        return f"{int(seconds)} seconds"
+        return _plural(int(seconds), "second")
     if seconds < 3600:
-        return f"{round(seconds / 60)} minutes"
+        return _plural(round(seconds / 60), "minute")
     if seconds < 86400:
-        return f"{round(seconds / 3600)} hours"
+        return _plural(round(seconds / 3600), "hour")
     if seconds < 31_536_000:
-        return f"{round(seconds / 86400)} days"
+        return _plural(round(seconds / 86400), "day")
     years = seconds / 31_536_000
     if years < 1000:
-        return f"{round(years)} years"
+        return _plural(round(years), "year")
     if years < 1_000_000:
         return f"{years / 1000:.1f} thousand years"
     if years < 1_000_000_000:

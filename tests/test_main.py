@@ -123,6 +123,13 @@ class TestCrackTime(unittest.TestCase):
         self.assertEqual(format_crack_time(45), "45 seconds")
         self.assertEqual(format_crack_time(600), "10 minutes")
 
+    def test_format_uses_singular_units_for_one(self):
+        self.assertEqual(format_crack_time(1), "1 second")
+        self.assertEqual(format_crack_time(60), "1 minute")
+        self.assertEqual(format_crack_time(3600), "1 hour")
+        self.assertEqual(format_crack_time(86400), "1 day")
+        self.assertEqual(format_crack_time(31_536_000), "1 year")
+
     def test_format_hours_and_days(self):
         self.assertEqual(format_crack_time(7200), "2 hours")
         self.assertEqual(format_crack_time(432000), "5 days")
