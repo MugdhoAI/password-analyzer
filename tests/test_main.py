@@ -199,6 +199,18 @@ class TestPatternDetection(unittest.TestCase):
         self.assertFalse(any("sequence" in r for r in result.reasons))
         self.assertFalse(any("in a row" in r for r in result.reasons))
 
+    def test_keyboard_row_walk_is_flagged(self):
+        result = analyze_password("Qwerty99!x")
+        self.assertTrue(any("sequence" in r for r in result.reasons))
+
+    def test_keyboard_diagonal_walk_is_flagged(self):
+        result = analyze_password("1qazXsw2!pl")
+        self.assertTrue(any("sequence" in r for r in result.reasons))
+
+    def test_home_row_walk_is_flagged(self):
+        result = analyze_password("Asdf1234!zx")
+        self.assertTrue(any("sequence" in r for r in result.reasons))
+
 
 if __name__ == "__main__":
     unittest.main()

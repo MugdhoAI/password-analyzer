@@ -179,14 +179,24 @@ def _find_repeated_run(password: str) -> str | None:
     return None
 
 
-_SEQUENCE_SOURCES = ("abcdefghijklmnopqrstuvwxyz", "0123456789")
+_SEQUENCE_SOURCES = (
+    "abcdefghijklmnopqrstuvwxyz",
+    "0123456789",
+    # QWERTY keyboard rows, left to right. A walk along one row
+    # ("qwerty", "asdf", "zxcv") is as guessable as "abc" or "123".
+    "qwertyuiop",
+    "asdfghjkl",
+    "zxcvbnm",
+    # Diagonal walks down the keyboard, number row to letter rows.
+    "1qaz2wsx3edc4rfv5tgb6yhn7ujm8ik9ol0p",
+)
 
 
 def _find_sequence(password: str) -> str | None:
     """
     Return the first simple sequence of 3 or more characters, such
-    as "abc", "cba", "123" or "321", or None. Case is ignored, so
-    "XyZ" is caught as well.
+    as "abc", "cba", "123", "321", "qwe" or "1qa", or None. Case is
+    ignored, so "XyZ" is caught as well.
     """
     lowered = password.lower()
     for start in range(len(lowered) - 2):
