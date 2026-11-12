@@ -86,6 +86,9 @@ python main.py generate --length 16 --no-symbols
 
 # Generate without easily confused characters (I, l, 1, O, 0)
 python main.py generate --length 16 --exclude-ambiguous
+
+# Generate three passwords at once
+python main.py generate --length 16 --count 3
 ```
 
 ## Project Structure

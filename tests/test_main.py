@@ -5,9 +5,14 @@ Run with:
     python -m unittest discover tests
 """
 
+import argparse
+import io
 import math
 import unittest
 
+from contextlib import redirect_stdout
+
+from main import run_generate
 from src.analyzer import (
     analyze_password,
     estimate_crack_time_seconds,
@@ -115,6 +120,36 @@ class TestGeneratePassword(unittest.TestCase):
         pw1 = generate_password(length=16)
         pw2 = generate_password(length=16)
         self.assertNotEqual(pw1, pw2)
+
+
+class TestGenerateCommand(unittest.TestCase):
+
+    def _run_generate(self, **kwargs):
+        args = argparse.Namespace(
+            length=kwargs.get("length", 16),
+            no_symbols=kwargs.get("no_symbols", False),
+            exclude_ambiguous=kwargs.get("exclude_ambiguous", False),
+            count=kwargs.get("count", 1),
+        )
+        output = io.StringIO()
+        with redirect_stdout(output):
+            run_generate(args)
+        return output.getvalue()
+
+    def test_count_one_prints_one_password(self):
+        output = self._run_generate(count=1)
+        self.assertEqual(output.count("Generated password:"), 1)
+
+    def test_count_three_prints_three_passwords(self):
+        output = self._run_generate(count=3)
+        self.assertEqual(output.count("Generated password:"), 3)
+
+    def test_count_zero_exits_with_error(self):
+        args = argparse.Namespace(
+            length=16, no_symbols=False, exclude_ambiguous=False, count=0
+        )
+        with self.assertRaises(SystemExit):
+            run_generate(args)
 
 
 class TestCrackTime(unittest.TestCase):

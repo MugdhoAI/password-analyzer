@@ -10,6 +10,7 @@ Usage:
     python main.py check --password "mypassword123"
     python main.py generate --length 20
     python main.py generate --length 12 --no-symbols
+    python main.py generate --length 16 --count 3
 """
 
 import argparse
@@ -43,19 +44,24 @@ def run_check(args: argparse.Namespace) -> None:
 
 def run_generate(args: argparse.Namespace) -> None:
     """Handle the 'generate' subcommand: create a strong password."""
-    try:
-        password = generate_password(
-            length=args.length,
-            use_symbols=not args.no_symbols,
-            exclude_ambiguous=args.exclude_ambiguous,
-        )
-    except ValueError as e:
-        print(f"Error: {e}")
+    if args.count < 1:
+        print("Error: --count must be at least 1.")
         sys.exit(1)
 
-    result = analyze_password(password)
-    print(f"\nGenerated password: {password}")
-    print(f"Strength: {result.strength_label} ({result.entropy_bits} bits of entropy)")
+    for _ in range(args.count):
+        try:
+            password = generate_password(
+                length=args.length,
+                use_symbols=not args.no_symbols,
+                exclude_ambiguous=args.exclude_ambiguous,
+            )
+        except ValueError as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+
+        result = analyze_password(password)
+        print(f"\nGenerated password: {password}")
+        print(f"Strength: {result.strength_label} ({result.entropy_bits} bits of entropy)")
 
 
 def main() -> None:
@@ -79,6 +85,10 @@ def main() -> None:
     generate_parser.add_argument(
         "--no-symbols", action="store_true",
         help="Exclude symbols from the generated password."
+    )
+    generate_parser.add_argument(
+        "--count", type=int, default=1,
+        help="How many passwords to generate. Default: 1."
     )
     generate_parser.add_argument(
         "--exclude-ambiguous", action="store_true",
