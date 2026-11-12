@@ -152,8 +152,10 @@ def _label_strength(entropy_bits: float, is_common: bool) -> str:
 def _find_repeated_run(password: str) -> str | None:
     """
     Return the first run of the same character repeated 3 or more
-    times in a row (for example "aaa"), or None. Attackers try these
-    early, and the plain entropy estimate does not account for them.
+    times in a row (for example "aaa"), or None. The whole run is
+    returned, so "aaaaa" reports five repeats, not three. Attackers
+    try these early, and the plain entropy estimate does not account
+    for them.
     """
     run_char = ""
     run_length = 0
@@ -161,10 +163,12 @@ def _find_repeated_run(password: str) -> str | None:
         if char == run_char:
             run_length += 1
         else:
+            if run_length >= 3:
+                return run_char * run_length
             run_char = char
             run_length = 1
-        if run_length >= 3:
-            return run_char * run_length
+    if run_length >= 3:
+        return run_char * run_length
     return None
 
 

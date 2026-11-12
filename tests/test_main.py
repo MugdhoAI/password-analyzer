@@ -165,6 +165,12 @@ class TestPatternDetection(unittest.TestCase):
         result = analyze_password("Mypaaassword1!")
         self.assertTrue(any("in a row" in r for r in result.reasons))
 
+    def test_repeated_run_reports_its_full_length(self):
+        # Regression test: the old scan stopped counting at 3, so a
+        # five character run was reported as only three repeats.
+        result = analyze_password("Mypaaaaassword1!")
+        self.assertTrue(any("5 times in a row" in r for r in result.reasons))
+
     def test_two_repeats_are_not_flagged(self):
         result = analyze_password("Moonlight7!Trail")
         self.assertFalse(any("in a row" in r for r in result.reasons))
