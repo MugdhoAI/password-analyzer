@@ -98,6 +98,17 @@ class TestGeneratePassword(unittest.TestCase):
         with self.assertRaises(ValueError):
             generate_password(length=4)
 
+    def test_exclude_ambiguous_leaves_out_confusing_characters(self):
+        for _ in range(20):
+            password = generate_password(length=16, exclude_ambiguous=True)
+            self.assertTrue(all(c not in "Il1O0" for c in password))
+
+    def test_exclude_ambiguous_still_contains_all_required_classes(self):
+        password = generate_password(length=16, exclude_ambiguous=True)
+        self.assertTrue(any(c.islower() for c in password))
+        self.assertTrue(any(c.isupper() for c in password))
+        self.assertTrue(any(c.isdigit() for c in password))
+
     def test_generated_passwords_are_not_identical(self):
         # Sanity check that generation is actually randomized, not
         # accidentally deterministic.

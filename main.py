@@ -44,7 +44,11 @@ def run_check(args: argparse.Namespace) -> None:
 def run_generate(args: argparse.Namespace) -> None:
     """Handle the 'generate' subcommand: create a strong password."""
     try:
-        password = generate_password(length=args.length, use_symbols=not args.no_symbols)
+        password = generate_password(
+            length=args.length,
+            use_symbols=not args.no_symbols,
+            exclude_ambiguous=args.exclude_ambiguous,
+        )
     except ValueError as e:
         print(f"Error: {e}")
         sys.exit(1)
@@ -75,6 +79,10 @@ def main() -> None:
     generate_parser.add_argument(
         "--no-symbols", action="store_true",
         help="Exclude symbols from the generated password."
+    )
+    generate_parser.add_argument(
+        "--exclude-ambiguous", action="store_true",
+        help="Leave out easily confused characters (I, l, 1, O, 0)."
     )
     generate_parser.set_defaults(func=run_generate)
 

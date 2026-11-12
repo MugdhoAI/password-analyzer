@@ -83,6 +83,9 @@ python main.py generate --length 20
 
 # Generate without symbols
 python main.py generate --length 16 --no-symbols
+
+# Generate without easily confused characters (I, l, 1, O, 0)
+python main.py generate --length 16 --exclude-ambiguous
 ```
 
 ## Project Structure
