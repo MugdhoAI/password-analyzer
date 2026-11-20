@@ -281,6 +281,30 @@ class TestPatternDetection(unittest.TestCase):
         result = analyze_password("Asdf1234!zx")
         self.assertTrue(any("sequence" in r for r in result.reasons))
 
+    def test_repeated_run_lowers_the_strength_label(self):
+        # Regression test: detection used to warn in reasons only, so
+        # this 12 character single letter password scored 56.4 bits
+        # and was labelled "Moderate" despite the repeated run.
+        result = analyze_password("aaaaaaaaaaaa")
+        self.assertGreaterEqual(result.entropy_bits, 36)
+        self.assertEqual(result.strength_label, "Weak")
+
+    def test_sequence_lowers_the_strength_label(self):
+        # Same regression for sequences: 56.4 bits on paper, but the
+        # "abc" sequence means guessing tools try it early.
+        result = analyze_password("abcdefghijkl")
+        self.assertGreaterEqual(result.entropy_bits, 36)
+        self.assertEqual(result.strength_label, "Weak")
+
+    def test_pattern_caps_an_otherwise_very_strong_password(self):
+        result = analyze_password("Mypaaassword1!")
+        self.assertGreaterEqual(result.entropy_bits, 80)
+        self.assertEqual(result.strength_label, "Weak")
+
+    def test_password_without_a_pattern_keeps_its_entropy_label(self):
+        result = analyze_password("correcthorsebatterystaple")
+        self.assertEqual(result.strength_label, "Very Strong")
+
 
 if __name__ == "__main__":
     unittest.main()

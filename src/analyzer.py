@@ -139,24 +139,36 @@ def _calculate_entropy(password: str, pool_size: int) -> float:
     return len(password) * math.log2(pool_size)
 
 
-def _label_strength(entropy_bits: float, is_common: bool) -> str:
+def _label_strength(entropy_bits: float, is_common: bool,
+                    has_pattern: bool = False) -> str:
     """
     Convert a raw entropy number into a human-readable label.
     Thresholds are based on commonly cited entropy guidelines:
     under 28 bits is crackable in seconds/minutes, 60+ bits is
     considered strong against offline brute-force attacks.
+
+    A detected pattern (a repeated run or a simple sequence) caps
+    the label at "Weak", no matter how high the raw entropy is.
+    The raw entropy estimate assumes every character is chosen
+    independently, so it overstates passwords like "aaaaaaaaaaaa"
+    (56.4 bits on paper, labelled "Moderate" before this cap) that
+    guessing tools try early precisely because of the pattern.
     """
     if is_common:
         return "Very Weak"
     if entropy_bits < 28:
-        return "Very Weak"
-    if entropy_bits < 36:
+        label = "Very Weak"
+    elif entropy_bits < 36:
+        label = "Weak"
+    elif entropy_bits < 60:
+        label = "Moderate"
+    elif entropy_bits < 80:
+        label = "Strong"
+    else:
+        label = "Very Strong"
+    if has_pattern and label not in ("Very Weak", "Weak"):
         return "Weak"
-    if entropy_bits < 60:
-        return "Moderate"
-    if entropy_bits < 80:
-        return "Strong"
-    return "Very Strong"
+    return label
 
 
 def _find_repeated_run(password: str) -> str | None:
@@ -257,7 +269,8 @@ def analyze_password(password: str) -> AnalysisResult:
     if not reasons:
         reasons.append("Good length and character variety across multiple character classes.")
 
-    label = _label_strength(entropy_bits, is_common)
+    has_pattern = repeated is not None or sequence is not None
+    label = _label_strength(entropy_bits, is_common, has_pattern=has_pattern)
 
     if is_common:
         crack_seconds = 0.0
